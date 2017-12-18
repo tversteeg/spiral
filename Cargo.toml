@@ -1,0 +1,6 @@
+[package]
+name = "spiral"
+version = "0.1.0"
+authors = ["Thomas Versteeg <thomasversteeg@gmx.com>"]
+
+[dependencies]
