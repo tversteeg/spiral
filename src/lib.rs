@@ -15,8 +15,8 @@ impl SpiralIterator {
             start_x: x,
             start_y: y,
 
-            distance: 1,
-            dir: 0,
+            distance: 0,
+            dir: 3,
             i: 0
         }
     }
@@ -26,6 +26,8 @@ impl Iterator for SpiralIterator {
     type Item = (i32, i32);
 
     fn next(&mut self) -> Option<(i32, i32)> {
+        let directions: [(i32, i32); 4] = [(1, 1), (1, -1), (-1, -1), (-1, 1)];
+
         let pos = match self.dir {
             0 => (self.start_x - self.distance as i32 + self.i as i32, self.start_y - self.i as i32),
             1 => (self.start_x + self.distance as i32 - self.i as i32, self.start_y + self.i as i32),
@@ -59,12 +61,53 @@ mod tests {
     use super::SpiralIterator;
 
     #[test]
-    fn it_works() {
-        let spiral = SpiralIterator::new(5, 5, 10);
+    fn output() {
+        const SIZE: usize = 7;
+        let mut output: [i32; SIZE * SIZE] = [0; SIZE * SIZE];
+
+        let mut current = 0;
+        let spiral = SpiralIterator::new(3, 3, 4);
         for (x, y) in spiral {
-            println!("S: {} {}", x, y);
+            current += 1;
+
+            let index = x as usize + (y as usize * SIZE);
+            output[index] = current;
         }
 
-        assert_eq!(2 + 2, 4);
+        for y in 0..SIZE {
+            for x in 0..SIZE {
+                let index = x as usize + (y as usize * SIZE);
+                let output_val = output[index];
+
+                if output_val > 0 {
+                    print!("{:3} ", output_val);
+                }else{
+                    print!("    ");
+                }
+            }
+            println!("");
+        }
     }
+
+    /*
+    #[test]
+    fn small() {
+        let expected: [i32; 5 * 5] = [
+             0,  0, 10,  0,  0,
+             0,  9,  2,  6,  0,
+            13,  5,  1,  3, 11,
+             0,  8,  4,  7,  0,
+             0,  0, 12,  0,  0];
+
+        let mut current = 0;
+        let spiral = SpiralIterator::new(2, 2, 1);
+        for (x, y) in spiral {
+            current += 1;
+
+            let index = x + y * 5;
+
+            assert_eq!(expected[index as usize], current);
+        }
+    }
+    */
 }
