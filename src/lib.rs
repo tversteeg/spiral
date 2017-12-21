@@ -1,39 +1,104 @@
-pub struct SpiralIterator {
-    max_distance: u32,
+pub enum Spiral {
+    Euclidean,
+    Manhattan(ManhattanIterator),
+    Chebyshev(ChebyshevIterator)
+}
+
+pub struct ChebyshevIterator {
+    max_distance: i32,
     start_x: i32,
     start_y: i32,
 
-    distance: u32,
-    i: u32,
-    dir: u8,
+    i: i32,
 }
 
-impl SpiralIterator {
-    fn new(x: i32, y: i32, max_distance: u32) -> Self {
-        SpiralIterator {
-            max_distance: max_distance,
+impl ChebyshevIterator {
+    #[allow(dead_code)]
+    fn new(x: i32, y: i32, max_distance: u16) -> Self {
+        ChebyshevIterator {
+            max_distance: max_distance as i32,
             start_x: x,
             start_y: y,
 
-            distance: 0,
-            dir: 3,
             i: 0
         }
     }
 }
 
-impl Iterator for SpiralIterator {
+impl Iterator for ChebyshevIterator {
     type Item = (i32, i32);
 
     fn next(&mut self) -> Option<(i32, i32)> {
-        let directions: [(i32, i32); 4] = [(1, 1), (1, -1), (-1, -1), (-1, 1)];
+        if self.i == 0 {
+            self.i += 1;
+            return Some((self.start_x, self.start_y));
+        }
+
+        let radius = f64::floor((f64::sqrt(self.i as f64 + 1.0) - 1.0) / 2.0) as i32 + 1;
+        if radius >= self.max_distance {
+            return None;
+        }
+        let diameter = radius * 2;
+
+        let point = (8 * radius * (radius - 1)) / 2;
+
+        let a = (1 + self.i - point) % (radius * 8);
+
+        let (offset_x, offset_y) = match a / diameter {
+            0 => (a - radius, -radius),
+            1 => (radius, (a % diameter) - radius),
+            2 => (radius - (a % diameter), radius),
+            3 => (-radius, radius - (a % diameter)),
+            _ => return None
+        };
+
+        self.i += 1;
+
+        Some((self.start_x + offset_x, self.start_y + offset_y))
+    }
+}
+
+pub struct ManhattanIterator {
+    max_distance: i32,
+    start_x: i32,
+    start_y: i32,
+
+    distance: i32,
+    i: i32,
+    dir: u8,
+}
+
+impl ManhattanIterator {
+    #[allow(dead_code)]
+    fn new(x: i32, y: i32, max_distance: u16) -> Self {
+        ManhattanIterator {
+            max_distance: max_distance as i32,
+            start_x: x,
+            start_y: y,
+
+            distance: 0,
+            dir: 0,
+            i: 0
+        }
+    }
+}
+
+impl Iterator for ManhattanIterator {
+    type Item = (i32, i32);
+
+    fn next(&mut self) -> Option<(i32, i32)> {
+        if self.distance == 0 {
+            self.distance += 1;
+
+            return Some((self.start_x, self.start_y));
+        }
 
         let pos = match self.dir {
-            0 => (self.start_x - self.distance as i32 + self.i as i32, self.start_y - self.i as i32),
-            1 => (self.start_x + self.distance as i32 - self.i as i32, self.start_y + self.i as i32),
-            2 => (self.start_x - self.i as i32, self.start_y + self.distance as i32 - self.i as i32),
-            3 => (self.start_x + self.distance as i32 - self.i as i32, self.start_y - self.i as i32),
-            _ => (0, 0)
+            0 => (self.start_x + self.distance - self.i, self.start_y + self.i),
+            2 => (self.start_x - self.distance + self.i, self.start_y - self.i),
+            1 => (self.start_x, self.start_y + self.distance),
+            3 => (self.start_x, self.start_y - self.distance),
+            _ => return None
         };
 
         self.dir += 1;
@@ -41,14 +106,14 @@ impl Iterator for SpiralIterator {
             self.dir = 0;
 
             self.i += 1;
-            if self.i == self.distance + 1 {
+            if self.i == self.distance {
                 self.i = 0;
 
                 self.distance += 1;
             }
         }
 
-        if self.distance == self.max_distance {
+        if self.distance >= self.max_distance {
             return None;
         }
 
@@ -58,15 +123,17 @@ impl Iterator for SpiralIterator {
 
 #[cfg(test)]
 mod tests {
-    use super::SpiralIterator;
+    use super::*;
 
     #[test]
     fn output() {
         const SIZE: usize = 7;
+
+        println!("Manhattan");
         let mut output: [i32; SIZE * SIZE] = [0; SIZE * SIZE];
 
         let mut current = 0;
-        let spiral = SpiralIterator::new(3, 3, 4);
+        let spiral = ManhattanIterator::new(3, 3, 4);
         for (x, y) in spiral {
             current += 1;
 
@@ -79,17 +146,33 @@ mod tests {
                 let index = x as usize + (y as usize * SIZE);
                 let output_val = output[index];
 
-                if output_val > 0 {
-                    print!("{:3} ", output_val);
-                }else{
-                    print!("    ");
-                }
+                print!("{:3} ", output_val);
             }
             println!("");
         }
+
+        println!("Chebyshev");
+        current = 0;
+        let spiral = ChebyshevIterator::new(3, 3, 4);
+        for (x, y) in spiral {
+            current += 1;
+
+            let index = x as usize + (y as usize * SIZE);
+            output[index] = current;
+        }
+
+        for y in 0..SIZE {
+            for x in 0..SIZE {
+                let index = x as usize + (y as usize * SIZE);
+                let output_val = output[index];
+
+                print!("{:3} ", output_val);
+            }
+            println!("");
+        }
+
     }
 
-    /*
     #[test]
     fn small() {
         let expected: [i32; 5 * 5] = [
@@ -100,7 +183,7 @@ mod tests {
              0,  0, 12,  0,  0];
 
         let mut current = 0;
-        let spiral = SpiralIterator::new(2, 2, 1);
+        let spiral = ManhattanIterator::new(2, 2, 1);
         for (x, y) in spiral {
             current += 1;
 
@@ -109,5 +192,4 @@ mod tests {
             assert_eq!(expected[index as usize], current);
         }
     }
-    */
 }
