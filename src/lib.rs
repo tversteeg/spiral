@@ -14,7 +14,7 @@ pub struct ChebyshevIterator {
 
 impl ChebyshevIterator {
     #[allow(dead_code)]
-    fn new(x: i32, y: i32, max_distance: u16) -> Self {
+    pub fn new(x: i32, y: i32, max_distance: u16) -> Self {
         ChebyshevIterator {
             max_distance: max_distance as i32,
             start_x: x,
@@ -70,7 +70,7 @@ pub struct ManhattanIterator {
 
 impl ManhattanIterator {
     #[allow(dead_code)]
-    fn new(x: i32, y: i32, max_distance: u16) -> Self {
+    pub fn new(x: i32, y: i32, max_distance: u16) -> Self {
         ManhattanIterator {
             max_distance: max_distance as i32,
             start_x: x,
