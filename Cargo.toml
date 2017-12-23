@@ -1,6 +1,6 @@
 [package]
 name = "spiral"
-version = "0.1.1"
+version = "0.1.2"
 description = "Iterate a 2D structure in a spiral pattern"
 readme = "README.md"
 license = "GPL-3.0"
