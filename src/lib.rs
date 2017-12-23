@@ -1,3 +1,7 @@
+#![crate_name = "spiral"]
+
+//! Iterators to iterate 2D structures in a spiral pattern
+
 pub enum Spiral {
     Euclidean(EuclideanIterator),
     Manhattan(ManhattanIterator),
@@ -14,6 +18,23 @@ pub struct ChebyshevIterator {
 
 impl ChebyshevIterator {
     #[allow(dead_code)]
+    /// Create a new iterator using the Chebyshev distance function
+    ///
+    /// # Arguments
+    ///
+    /// * `x` - The x position of the center of the spiral
+    /// * `y` - The y position of the center of the spiral
+    /// * `max_distance` - The radius of the spiral
+    ///
+    /// # Example
+    /// ```
+    /// use spiral::ChebyshevIterator;
+    ///
+    /// let spiral = ChebyshevIterator::new(3, 3, 4);
+    /// for (x, y) in spiral {
+    ///     // Iterate over 2D array with 'x' & 'y'
+    /// }
+    /// ```
     pub fn new(x: i32, y: i32, max_distance: u16) -> Self {
         ChebyshevIterator {
             max_distance: max_distance as i32,
@@ -70,6 +91,23 @@ pub struct ManhattanIterator {
 
 impl ManhattanIterator {
     #[allow(dead_code)]
+    /// Create a new iterator using the Manhattan distance function
+    ///
+    /// # Arguments
+    ///
+    /// * `x` - The x position of the center of the spiral
+    /// * `y` - The y position of the center of the spiral
+    /// * `max_distance` - The radius of the spiral
+    ///
+    /// # Example
+    /// ```
+    /// use spiral::ChebyshevIterator;
+    ///
+    /// let spiral = ChebyshevIterator::new(3, 3, 4);
+    /// for (x, y) in spiral {
+    ///     // Iterate over 2D array with 'x' & 'y'
+    /// }
+    /// ```
     pub fn new(x: i32, y: i32, max_distance: u16) -> Self {
         ManhattanIterator {
             max_distance: max_distance as i32,
@@ -138,6 +176,23 @@ pub struct EuclideanIterator {
 
 impl EuclideanIterator {
     #[allow(dead_code)]
+    /// Create a new iterator using the Euclidean distance function.
+    ///
+    /// # Arguments
+    ///
+    /// * `x` - The x position of the center of the spiral
+    /// * `y` - The y position of the center of the spiral
+    /// * `max_distance` - The radius of the spiral
+    ///
+    /// # Example
+    /// ```
+    /// use spiral::EuclideanIterator;
+    ///
+    /// let spiral = EuclideanIterator::new(3, 3, 4);
+    /// for (x, y) in spiral {
+    ///     // Iterate over 2D array with 'x' & 'y'
+    /// }
+    /// ```
     pub fn new(x: i32, y: i32, max_distance: u16) -> Self {
         // Approximate cos pi/4 by 185363 / 2 ^ 18
         let length = (max_distance as i32 * 185363) >> 18;
@@ -206,13 +261,13 @@ mod tests {
 
     #[test]
     fn output() {
-        const SIZE: usize = 9;
+        const SIZE: usize = 7;
 
         println!("Manhattan");
         let mut output: [i32; SIZE * SIZE] = [0; SIZE * SIZE];
 
         let mut current = 0;
-        let spiral = ManhattanIterator::new(4, 4, 5);
+        let spiral = ManhattanIterator::new(3, 3, 4);
         for (x, y) in spiral {
             current += 1;
 
@@ -231,8 +286,10 @@ mod tests {
         }
 
         println!("Euclidean");
+        output = [0; SIZE * SIZE];
+
         current = 0;
-        let spiral = EuclideanIterator::new(4, 4, 5);
+        let spiral = EuclideanIterator::new(3, 3, 4);
         for (x, y) in spiral {
             current += 1;
 
@@ -251,8 +308,10 @@ mod tests {
         }
 
         println!("Chebyshev");
+        output = [0; SIZE * SIZE];
+
         current = 0;
-        let spiral = ChebyshevIterator::new(4, 4, 5);
+        let spiral = ChebyshevIterator::new(3, 3, 4);
         for (x, y) in spiral {
             current += 1;
 
