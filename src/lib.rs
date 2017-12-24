@@ -13,7 +13,10 @@ pub struct ChebyshevIterator {
     start_x: i32,
     start_y: i32,
 
-    i: i32,
+    x: i32,
+    y: i32,
+    layer: i32,
+    leg: i32
 }
 
 impl ChebyshevIterator {
@@ -32,7 +35,15 @@ impl ChebyshevIterator {
     ///
     /// let spiral = ChebyshevIterator::new(3, 3, 4);
     /// for (x, y) in spiral {
-    ///     // Iterate over 2D array with 'x' & 'y'
+    ///     // Iterates over 9x9 2D array with 'x' & 'y' following this pattern:
+    ///
+    ///     // 43  44  45  46  47  48  49 
+    ///     // 42  21  22  23  24  25  26 
+    ///     // 41  20   7   8   9  10  27 
+    ///     // 40  19   6   1   2  11  28 
+    ///     // 39  18   5   4   3  12  29 
+    ///     // 38  17  16  15  14  13  30 
+    ///     // 37  36  35  34  33  32  31 
     /// }
     /// ```
     pub fn new(x: i32, y: i32, max_distance: u16) -> Self {
@@ -41,7 +52,10 @@ impl ChebyshevIterator {
             start_x: x,
             start_y: y,
 
-            i: 0
+            x: 0,
+            y: 0,
+            layer: 1,
+            leg: -1
         }
     }
 }
@@ -50,32 +64,44 @@ impl Iterator for ChebyshevIterator {
     type Item = (i32, i32);
 
     fn next(&mut self) -> Option<(i32, i32)> {
-        if self.i == 0 {
-            self.i += 1;
-            return Some((self.start_x, self.start_y));
-        }
+        match self.leg {
+            // Use -1 as the center
+            -1 => {
+                self.leg = 0;
+            }
+            0 => {
+                self.x += 1;
+                if self.x == self.layer {
+                    self.leg = 1;
 
-        let radius = f64::floor((f64::sqrt(self.i as f64 + 1.0) - 1.0) / 2.0) as i32 + 1;
-        if radius >= self.max_distance {
-            return None;
-        }
-        let diameter = radius * 2;
-
-        let point = (8 * radius * (radius - 1)) / 2;
-
-        let a = (1 + self.i - point) % (radius * 8);
-
-        let (offset_x, offset_y) = match a / diameter {
-            0 => (a - radius, -radius),
-            1 => (radius, (a % diameter) - radius),
-            2 => (radius - (a % diameter), radius),
-            3 => (-radius, radius - (a % diameter)),
+                    if self.layer == self.max_distance {
+                        return None
+                    }
+                }
+            },
+            1 => {
+                self.y += 1;
+                if self.y == self.layer {
+                    self.leg = 2;
+                }
+            },
+            2 => {
+                self.x -= 1;
+                if -self.x == self.layer {
+                    self.leg = 3;
+                }
+            },
+            3 => {
+                self.y -= 1;
+                if -self.y == self.layer {
+                    self.leg = 0;
+                    self.layer += 1;
+                }
+            },
             _ => return None
-        };
+        }
 
-        self.i += 1;
-
-        Some((self.start_x + offset_x, self.start_y + offset_y))
+        Some((self.start_x + self.x, self.start_y + self.y))
     }
 }
 
