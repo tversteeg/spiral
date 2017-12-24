@@ -1,6 +1,6 @@
 [package]
 name = "spiral"
-version = "0.1.2"
+version = "0.1.3"
 description = "Iterate a 2D structure in a spiral pattern"
 readme = "README.md"
 license = "GPL-3.0"
@@ -8,6 +8,7 @@ keywords = ["iterator", "2D", "distance"]
 authors = ["Thomas Versteeg <thomasversteeg@gmx.com>"]
 repository = "https://github.com/tversteeg/spiral.git"
 homepage = "https://github.com/tversteeg/spiral"
+documentation = "https://docs.rs/spiral"
 
 [badges]
 travis-ci = {repository = "tversteeg/spiral"}

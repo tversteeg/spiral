@@ -8,6 +8,13 @@ pub enum Spiral {
     Chebyshev(ChebyshevIterator)
 }
 
+/// An iterator iterating in a spiral fashion with the Chebyshev distance function.
+///
+/// The distance function is defined as:
+///
+/// `distance = max(absolute x offset from center, absolute y offset from center)`.
+///
+/// This creates a rectangular-shaped spiral.
 pub struct ChebyshevIterator {
     max_distance: i32,
     start_x: i32,
@@ -105,6 +112,13 @@ impl Iterator for ChebyshevIterator {
     }
 }
 
+/// An iterator iterating in a spiral fashion with the Manhattan distance function.
+///
+/// The distance function is defined as:
+///
+/// `distance = (absolute x offset from center + absolute y offset from center) / 2`.
+///
+/// This creates a diamond-shaped spiral.
 pub struct ManhattanIterator {
     max_distance: i32,
     start_x: i32,
@@ -185,6 +199,13 @@ impl Iterator for ManhattanIterator {
     }
 }
 
+/// An iterator iterating in a spiral fashion with the Euclidean distance function.
+///
+/// The distance function is defined as:
+///
+/// `distance = sqrt((absolute x offset from center ^ 2) + (absolute y offset from center ^ 2))`.
+///
+/// This creates a diamond-shaped spiral.
 pub struct EuclideanIterator {
     max_distance: i32,
     start_x: i32,
