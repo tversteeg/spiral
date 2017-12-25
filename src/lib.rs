@@ -116,7 +116,7 @@ impl Iterator for ChebyshevIterator {
 ///
 /// The distance function is defined as:
 ///
-/// `distance = (absolute x offset from center + absolute y offset from center) / 2`.
+/// `distance = absolute x offset from center + absolute y offset from center`.
 ///
 /// This creates a diamond-shaped spiral.
 pub struct ManhattanIterator {
@@ -124,9 +124,10 @@ pub struct ManhattanIterator {
     start_x: i32,
     start_y: i32,
 
-    distance: i32,
-    i: i32,
-    dir: u8,
+    x: i32,
+    y: i32,
+    layer: i32,
+    leg: i32
 }
 
 impl ManhattanIterator {
@@ -145,7 +146,15 @@ impl ManhattanIterator {
     ///
     /// let spiral = ChebyshevIterator::new(3, 3, 4);
     /// for (x, y) in spiral {
-    ///     // Iterate over 2D array with 'x' & 'y'
+    ///     // Iterates over 9x9 2D array with 'x' & 'y' following this pattern:
+    ///
+    ///     //  0   0   0  23   0   0   0 
+    ///     //  0   0  22  12  24   0   0 
+    ///     //  0  21  11   5  13  25   0 
+    ///     // 20  10   4   1   2   6  14 
+    ///     //  0  19   9   3   7  15   0 
+    ///     //  0   0  18   8  16   0   0 
+    ///     //  0   0   0  17   0   0   0 
     /// }
     /// ```
     pub fn new(x: i32, y: i32, max_distance: u16) -> Self {
@@ -154,9 +163,10 @@ impl ManhattanIterator {
             start_x: x,
             start_y: y,
 
-            distance: 0,
-            dir: 0,
-            i: 0
+            x: 2,
+            y: -1,
+            layer: 1,
+            leg: -1
         }
     }
 }
@@ -165,37 +175,51 @@ impl Iterator for ManhattanIterator {
     type Item = (i32, i32);
 
     fn next(&mut self) -> Option<(i32, i32)> {
-        if self.distance == 0 {
-            self.distance += 1;
-
-            return Some((self.start_x, self.start_y));
-        }
-
-        let pos = match self.dir {
-            0 => (self.start_x + self.distance - self.i, self.start_y + self.i),
-            2 => (self.start_x - self.distance + self.i, self.start_y - self.i),
-            1 => (self.start_x, self.start_y + self.distance),
-            3 => (self.start_x, self.start_y - self.distance),
-            _ => return None
-        };
-
-        self.dir += 1;
-        if self.dir > 3 {
-            self.dir = 0;
-
-            self.i += 1;
-            if self.i == self.distance {
-                self.i = 0;
-
-                self.distance += 1;
+        match self.leg {
+            // Use -1 as the center
+            -1 => {
+                self.leg = 0;
+                
+                return Some((self.start_x, self.start_y));
             }
+            0 => {
+                self.x -= 1;
+                self.y += 1;
+                if self.x == 0 {
+                    self.leg = 1;
+                }
+            },
+            1 => {
+                self.x -= 1;
+                self.y -= 1;
+                if self.y == 0 {
+                    self.leg = 2;
+                }
+            },
+            2 => {
+                self.x += 1;
+                self.y -= 1;
+                if self.x == 0 {
+                    self.leg = 3;
+                }
+            },
+            3 => {
+                self.x += 1;
+                self.y += 1;
+                if self.y == 0 {
+                    self.x += 1;
+                    self.leg = 0;
+                    self.layer += 1;
+
+                    if self.layer == self.max_distance {
+                        return None
+                    }
+                }
+            },
+            _ => return None
         }
 
-        if self.distance >= self.max_distance {
-            return None;
-        }
-
-        Some(pos)
+        Some((self.start_x + self.x, self.start_y + self.y))
     }
 }
 
@@ -380,14 +404,14 @@ mod tests {
     #[test]
     fn small() {
         let expected: [i32; 5 * 5] = [
-             0,  0, 10,  0,  0,
-             0,  9,  2,  6,  0,
-            13,  5,  1,  3, 11,
-             0,  8,  4,  7,  0,
-             0,  0, 12,  0,  0];
+             0,  0, 12,  0,  0,
+             0, 11,  5, 13,  0,
+            10,  4,  1,  2,  6,
+             0,  9,  3,  7,  0,
+             0,  0,  8,  0,  0];
 
         let mut current = 0;
-        let spiral = ManhattanIterator::new(2, 2, 1);
+        let spiral = ManhattanIterator::new(2, 2, 3);
         for (x, y) in spiral {
             current += 1;
 
