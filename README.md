@@ -8,7 +8,7 @@ A Rust Library for iterating over 2D structures in spiral patterns
 
 ## Usage
 
-Add this to your `Cargo.tml`:
+Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
