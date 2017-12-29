@@ -42,7 +42,7 @@ impl ChebyshevIterator {
     ///
     /// let spiral = ChebyshevIterator::new(3, 3, 4);
     /// for (x, y) in spiral {
-    ///     // Iterates over 9x9 2D array with 'x' & 'y' following this pattern:
+    ///     // Iterates over 7x7 2D array with 'x' & 'y' following this pattern:
     ///
     ///     // 43  44  45  46  47  48  49 
     ///     // 42  21  22  23  24  25  26 
@@ -146,7 +146,7 @@ impl ManhattanIterator {
     ///
     /// let spiral = ChebyshevIterator::new(3, 3, 4);
     /// for (x, y) in spiral {
-    ///     // Iterates over 9x9 2D array with 'x' & 'y' following this pattern:
+    ///     // Iterates over 7x7 2D array with 'x' & 'y' following this pattern:
     ///
     ///     //  0   0   0  23   0   0   0 
     ///     //  0   0  22  12  24   0   0 
@@ -231,7 +231,6 @@ impl Iterator for ManhattanIterator {
 ///
 /// This creates a diamond-shaped spiral.
 pub struct EuclideanIterator {
-    max_distance: i32,
     start_x: i32,
     start_y: i32,
 
@@ -271,7 +270,6 @@ impl EuclideanIterator {
         let diameter = (max_distance * max_distance) as i32;
 
         EuclideanIterator {
-            max_distance: max_distance as i32,
             start_x: x,
             start_y: y,
 
@@ -402,7 +400,7 @@ mod tests {
     }
 
     #[test]
-    fn small() {
+    fn manhattan() {
         let expected: [i32; 5 * 5] = [
              0,  0, 12,  0,  0,
              0, 11,  5, 13,  0,
@@ -411,8 +409,7 @@ mod tests {
              0,  0,  8,  0,  0];
 
         let mut current = 0;
-        let spiral = ManhattanIterator::new(2, 2, 3);
-        for (x, y) in spiral {
+        for (x, y) in ManhattanIterator::new(2, 2, 3) {
             current += 1;
 
             let index = x + y * 5;
@@ -420,4 +417,24 @@ mod tests {
             assert_eq!(expected[index as usize], current);
         }
     }
+
+    #[test]
+    fn chebyshev() {
+        let expected: [i32; 5 * 5] = [
+            21, 22, 23, 24, 25,
+            20,  7,  8,  9, 10,
+            19,  6,  1,  2, 11,
+            18,  5,  4,  3, 12,
+            17, 16, 15, 14, 13];
+
+        let mut current = 0;
+        for (x, y) in ChebyshevIterator::new(2, 2, 3) {
+            current += 1;
+
+            let index = x + y * 5;
+
+            assert_eq!(expected[index as usize], current);
+        }
+    }
+
 }
