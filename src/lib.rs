@@ -234,14 +234,10 @@ pub struct EuclideanIterator {
     start_x: i32,
     start_y: i32,
 
-    x: i32,
-    y: i32,
-    length: i32,
+    i: usize,
     dir: u8,
 
-    y2_new: i32,
-    y2: i32,
-    ty: i32
+    lut: Vec<(i32, i32)>,
 }
 
 impl EuclideanIterator {
@@ -264,24 +260,28 @@ impl EuclideanIterator {
     /// }
     /// ```
     pub fn new(x: i32, y: i32, max_distance: u16) -> Self {
-        // Approximate cos pi/4 by 185363 / 2 ^ 18
-        let length = (max_distance as i32 * 185363) >> 18;
-
-        let diameter = (max_distance * max_distance) as i32;
-
         EuclideanIterator {
             start_x: x,
             start_y: y,
 
-            x: 0,
-            y: max_distance as i32 - 1,
-            length: length,
-            dir: 0,
-
-            y2: diameter,
-            y2_new: 0,
-            ty: (max_distance as i32 * 2) - 1
+            i: 0,
+            dir: 7,
+            lut: EuclideanIterator::build_lut_table(max_distance as i32)
         }
+    }
+
+    fn build_lut_table(max_distance: i32) -> Vec<(i32, i32)> {
+        let mut lut = Vec::new();
+
+        lut.push((0, 0));
+
+        for y in 0 .. max_distance {
+            for x in 0 .. y + 1 {
+                lut.push((x, y));
+            }
+        }
+
+        lut
     }
 }
 
@@ -289,16 +289,19 @@ impl Iterator for EuclideanIterator {
     type Item = (i32, i32);
 
     fn next(&mut self) -> Option<(i32, i32)> {
-        let pos = match self.dir {
-            0 => (self.x, self.y),
-            1 => (self.x, -self.y),
-            2 => (-self.x, self.y),
-            3 => (-self.x, -self.y),
+        let x = self.lut[self.i].0;
+        let y = self.lut[self.i].1;
 
-            4 => (self.y, self.x),
-            5 => (self.y, -self.x),
-            6 => (-self.y, self.x),
-            7 => (-self.y, -self.x),
+        let pos = match self.dir {
+            0 => (x, y),
+            1 => (x, -y),
+            2 => (-x, y),
+            3 => (-x, -y),
+
+            4 => (y, x),
+            5 => (y, -x),
+            6 => (-y, x),
+            7 => (-y, -x),
             _ => return None
         };
 
@@ -306,17 +309,9 @@ impl Iterator for EuclideanIterator {
         if self.dir >= 8 {
             self.dir = 0;
 
-            self.x += 1;
-            if self.x > self.length {
+            self.i += 1;
+            if self.i >= self.lut.len() {
                 return None;
-            }
-
-            self.y2_new -= (self.x * 2) - 3;
-
-            if self.y2 - self.y2_new >= self.ty {
-                self.y2 -= self.ty;
-                self.y -= 1;
-                self.ty -= 2;
             }
         }
 
