@@ -105,7 +105,7 @@ impl Iterator for ChebyshevIterator {
                     self.layer += 1;
                 }
             },
-            _ => return None
+            _ => unreachable!()
         }
 
         Some((self.start_x + self.x, self.start_y + self.y))
@@ -216,7 +216,7 @@ impl Iterator for ManhattanIterator {
                     }
                 }
             },
-            _ => return None
+            _ => unreachable!()
         }
 
         Some((self.start_x + self.x, self.start_y + self.y))
@@ -266,22 +266,28 @@ impl EuclideanIterator {
 
             i: 0,
             dir: 7,
-            lut: EuclideanIterator::build_lut_table(max_distance as i32)
+            lut: EuclideanIterator::build_lut_table(max_distance as i32 + 1)
         }
     }
 
     fn build_lut_table(max_distance: i32) -> Vec<(i32, i32)> {
         let mut lut = Vec::new();
 
-        lut.push((0, 0));
+        // It should be 0, 0 but negate it by one because the seventh directory does `x + 1`
+        lut.push((-1, 0));
 
-        for y in 0 .. max_distance {
-            for x in 0 .. y + 1 {
+        for y in 1..max_distance {
+            for x in 0..y {
                 lut.push((x, y));
             }
         }
 
-        lut
+        let dist_sqrt = (max_distance as f32).sqrt();
+
+        // Remove the items where the distance is larger than `max_distance`, partition splits the
+        // array into two parts where the distance is smaller and where the distance is larger than
+        // the max distance
+        lut.into_iter().partition(|&x| ((x.0 * x.0 + x.1 * x.1) as f32).sqrt() <= dist_sqrt).0
     }
 }
 
@@ -293,16 +299,17 @@ impl Iterator for EuclideanIterator {
         let y = self.lut[self.i].1;
 
         let pos = match self.dir {
-            0 => (x, y),
-            1 => (x, -y),
-            2 => (-x, y),
+            0 => (y, -x),
+            1 => (x, y),
+            2 => (-y, x),
             3 => (-x, -y),
 
-            4 => (y, x),
-            5 => (y, -x),
-            6 => (-y, x),
-            7 => (-y, -x),
-            _ => return None
+            4 => (y, x + 1),
+            5 => (-x - 1, y),
+            6 => (-y, -x - 1),
+            7 => (x + 1, -y),
+
+            _ => unreachable!()
         };
 
         self.dir += 1;
