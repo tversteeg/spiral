@@ -11,7 +11,7 @@ documentation = "https://docs.rs/spiral"
 
 repository = "https://github.com/tversteeg/spiral.git"
 keywords = ["iterator", "2D", "distance"]
-categories = ["no-std", "algorithms"]
+categories = ["algorithms", "game-engines"]
 
 [badges]
 travis-ci = {repository = "tversteeg/spiral"}
