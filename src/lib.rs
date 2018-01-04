@@ -2,6 +2,8 @@
 
 //! Iterators to iterate 2D structures in a spiral pattern
 
+use std::cmp::Ordering;
+
 pub enum Spiral {
     Euclidean(EuclideanIterator),
     Manhattan(ManhattanIterator),
@@ -265,29 +267,32 @@ impl EuclideanIterator {
             start_y: y,
 
             i: 0,
-            dir: 7,
-            lut: EuclideanIterator::build_lut_table(max_distance as i32 + 1)
+            dir: 3,
+            lut: EuclideanIterator::build_lut_table(max_distance as i32)
         }
     }
 
     fn build_lut_table(max_distance: i32) -> Vec<(i32, i32)> {
         let mut lut = Vec::new();
 
-        // It should be 0, 0 but negate it by one because the seventh directory does `x + 1`
-        lut.push((-1, 0));
+        lut.push((0, 0));
+
+        fn distance(vec: (i32, i32)) -> f32 {
+            ((vec.0 * vec.0 + vec.1 * vec.1) as f32).sqrt()
+        }
 
         for y in 1..max_distance {
-            for x in 0..y {
-                lut.push((x, y));
+            for x in 0..max_distance {
+                let vec = (x, y);
+                if distance(vec) < max_distance as f32 {
+                    lut.push(vec);
+                }
             }
         }
 
-        let dist_sqrt = (max_distance as f32).sqrt();
+        lut.sort_by(|&a, &b| distance(a).partial_cmp(&distance(b)).unwrap_or(Ordering::Equal));
 
-        // Remove the items where the distance is larger than `max_distance`, partition splits the
-        // array into two parts where the distance is smaller and where the distance is larger than
-        // the max distance
-        lut.into_iter().partition(|&x| ((x.0 * x.0 + x.1 * x.1) as f32).sqrt() <= dist_sqrt).0
+        lut
     }
 }
 
@@ -304,16 +309,11 @@ impl Iterator for EuclideanIterator {
             2 => (-y, x),
             3 => (-x, -y),
 
-            4 => (y, x + 1),
-            5 => (-x - 1, y),
-            6 => (-y, -x - 1),
-            7 => (x + 1, -y),
-
             _ => unreachable!()
         };
 
         self.dir += 1;
-        if self.dir >= 8 {
+        if self.dir >= 4 {
             self.dir = 0;
 
             self.i += 1;
