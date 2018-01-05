@@ -402,6 +402,40 @@ mod tests {
     }
 
     #[test]
+    fn manhattan_bounds() {
+        for size in 1..100 {
+            let max_distance = (size + 1) as i32;
+            for (x, y) in ManhattanIterator::new(0, 0, size) {
+                let distance = x.abs() + y.abs();
+                assert!(distance <= max_distance, "spiral was out of bounds: distance {}, size: {}, x: {}, y: {}", distance, size, x, y);
+            }
+        }
+    }
+
+    #[test]
+    fn euclidean_bounds() {
+        for size in 1..100 {
+            let max_distance = (size + 1) as i32;
+            for (x, y) in EuclideanIterator::new(0, 0, size) {
+                let squared = (x * x + y * y) as f32;
+                let distance = squared.sqrt() as i32;
+                assert!(distance <= max_distance, "spiral was out of bounds: distance {}, size: {}, x: {}, y: {}", distance, size, x, y);
+            }
+        }
+    }
+
+    #[test]
+    fn chebyshev_bounds() {
+        for size in 1..100 {
+            let max_distance = (size + 1) as i32;
+            for (x, y) in ChebyshevIterator::new(0, 0, size) {
+                let distance = std::cmp::max(x.abs(), y.abs());
+                assert!(distance <= max_distance, "spiral was out of bounds: distance {}, size: {}, x: {}, y: {}", distance, size, x, y);
+            }
+        }
+    }
+
+    #[test]
     fn manhattan() {
         let expected: [i32; 5 * 5] = [
              0,  0, 12,  0,  0,
