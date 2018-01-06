@@ -1,14 +1,57 @@
 #![crate_name = "spiral"]
 
-//! Iterators to iterate 2D structures in a spiral pattern
+//! Iterators to iterate 2D structures in spiral patterns
+//!
+//! # Usage
+//!
+//! This crate is [on crates.io](htpps://crates.io/crates/spiral) and can be used by adding
+//! `spiral` to the dependencies in your project's `Cargo.toml`.
+//!
+//! ```toml
+//! [dependencies]
+//! spiral = "0.1"
+//! ```
+//!
+//! and this to your crate root:
+//!
+//! ```rust
+//! extern crate spiral;
+//! ```
+//!
+//! # Examples
+//!
+//! ```rust
+//! use spiral::ChebyshevIterator;
+//!
+//! let center_x = 3;
+//! let center_y = 3;
+//! let radius = 4;
+//! let iterator = ChebyshevIterator::new(center_x, center_y, radius);
+//! for (x, y) in iterator {
+//!     // Iterates over a 7x7 2D array with `x` & `y`.
+//! }
+//! ```
+//!
+//! ```rust
+//! use spiral::ManhattanIterator;
+//!
+//! let center_x = 3;
+//! let center_y = 3;
+//! let radius = 4;
+//! for (x, y) in ManhattanIterator::new(center_x, center_y, radius) {
+//!     // Iterates over a 7x7 2D array with `x` & `y`.
+//! }
+//! ```
+//!
+//! ```rust
+//! use spiral::EuclideanIterator;
+//!
+//! for (x, y) in EuclideanIterator::new(3, 3, 4) {
+//!     // Iterates over a 7x7 2D array with `x` & `y`.
+//! }
+//! ```
 
 use std::cmp::Ordering;
-
-pub enum Spiral {
-    Euclidean(EuclideanIterator),
-    Manhattan(ManhattanIterator),
-    Chebyshev(ChebyshevIterator)
-}
 
 /// An iterator iterating in a spiral fashion with the Chebyshev distance function.
 ///
