@@ -185,6 +185,10 @@ impl Iterator for ManhattanIterator {
                 return Some((self.start_x, self.start_y));
             }
             0 => {
+                if self.max_distance == 1 {
+                    return None;
+                }
+
                 self.x -= 1;
                 self.y += 1;
                 if self.x == 0 {
@@ -437,6 +441,20 @@ mod tests {
 
     #[test]
     fn manhattan() {
+        let expected: [i32; 3 * 3] = [
+            0, 5, 0,
+            4, 1, 2,
+            0, 3, 0];
+
+        let mut current = 0;
+        for (x, y) in ManhattanIterator::new(1, 1, 2) {
+            current += 1;
+
+            let index = x + y * 3;
+
+            assert_eq!(expected[index as usize], current);
+        }
+
         let expected: [i32; 5 * 5] = [
              0,  0, 12,  0,  0,
              0, 11,  5, 13,  0,
@@ -444,7 +462,7 @@ mod tests {
              0,  9,  3,  7,  0,
              0,  0,  8,  0,  0];
 
-        let mut current = 0;
+        current = 0;
         for (x, y) in ManhattanIterator::new(2, 2, 3) {
             current += 1;
 
