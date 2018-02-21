@@ -2,7 +2,7 @@
 
 A Rust Library for iterating over 2D structures in spiral patterns
 
-[![Build Status](https://travis-ci.org/tversteeg/spiral.svg?branch=master)](https://travis-ci.org/tversteeg/spiral) [![Cargo](https://img.shields.io/crates/v/spiral.svg)](https://crates.io/crates/spiral) [![License: GPL-3.0](https://img.shields.io/crates/l/spiral.svg)](#license) [![Downloads]( 	https://img.shields.io/crates/d/spiral.svg)](#downloads)
+[![Build Status](https://travis-ci.org/tversteeg/spiral.svg?branch=master)](https://travis-ci.org/tversteeg/spiral) [![Cargo](https://img.shields.io/crates/v/spiral.svg)](https://crates.io/crates/spiral) [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftversteeg%2Fspiral.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftversteeg%2Fspiral?ref=badge_shield) [![Downloads](https://img.shields.io/crates/d/spiral.svg)](#downloads)
 
 ### [Documentation](https://docs.rs/spiral/)
 
@@ -39,3 +39,7 @@ for (x, y) in ManhattanIterator::new(center_x, center_y, radius) {
 	//  0   0   0  17   0   0   0 
 }
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftversteeg%2Fspiral.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftversteeg%2Fspiral?ref=badge_large)
