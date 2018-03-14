@@ -23,11 +23,6 @@ fn manhattan_small(b: &mut Bencher) {
     b.iter(|| for _ in ManhattanIterator::new(0, 0, SMALL) {});
 }
 
-#[bench]
-fn euclidean_small(b: &mut Bencher) {
-    b.iter(|| for _ in EuclideanIterator::new(0, 0, SMALL) {});
-}
-
 // Medium
 #[bench]
 fn chebyshev_medium(b: &mut Bencher) {
@@ -37,11 +32,6 @@ fn chebyshev_medium(b: &mut Bencher) {
 #[bench]
 fn manhattan_medium(b: &mut Bencher) {
     b.iter(|| for _ in ManhattanIterator::new(0, 0, MEDIUM) {});
-}
-
-#[bench]
-fn euclidean_medium(b: &mut Bencher) {
-    b.iter(|| for _ in EuclideanIterator::new(0, 0, MEDIUM) {});
 }
 
 // Large
@@ -55,11 +45,6 @@ fn manhattan_large(b: &mut Bencher) {
     b.iter(|| for _ in ManhattanIterator::new(0, 0, LARGE) {});
 }
 
-#[bench]
-fn euclidean_large(b: &mut Bencher) {
-    b.iter(|| for _ in EuclideanIterator::new(0, 0, LARGE) {});
-}
-
 // Huge
 #[bench]
 fn chebyshev_huge(b: &mut Bencher) {
@@ -69,9 +54,4 @@ fn chebyshev_huge(b: &mut Bencher) {
 #[bench]
 fn manhattan_huge(b: &mut Bencher) {
     b.iter(|| for _ in ManhattanIterator::new(0, 0, HUGE) {});
-}
-
-#[bench]
-fn euclidean_huge(b: &mut Bencher) {
-    b.iter(|| for _ in EuclideanIterator::new(0, 0, HUGE) {});
 }

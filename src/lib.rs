@@ -42,16 +42,6 @@
 //!     // Iterates over a 7x7 2D array with `x` & `y`.
 //! }
 //! ```
-//!
-//! ```rust
-//! use spiral::EuclideanIterator;
-//!
-//! for (x, y) in EuclideanIterator::new(3, 3, 4) {
-//!     // Iterates over a 7x7 2D array with `x` & `y`.
-//! }
-//! ```
-
-use std::cmp::Ordering;
 
 /// An iterator iterating in a spiral fashion with the Chebyshev distance function.
 ///
@@ -272,107 +262,6 @@ impl Iterator for ManhattanIterator {
     }
 }
 
-/// An iterator iterating in a spiral fashion with the Euclidean distance function.
-///
-/// The distance function is defined as:
-///
-/// `distance = sqrt((absolute x offset from center ^ 2) + (absolute y offset from center ^ 2))`.
-///
-/// This creates a diamond-shaped spiral.
-pub struct EuclideanIterator {
-    start_x: i32,
-    start_y: i32,
-
-    i: usize,
-    dir: u8,
-
-    lut: Vec<(i32, i32)>,
-}
-
-impl EuclideanIterator {
-    #[allow(dead_code)]
-    /// Create a new iterator using the Euclidean distance function.
-    ///
-    /// # Arguments
-    ///
-    /// * `x` - The x position of the center of the spiral
-    /// * `y` - The y position of the center of the spiral
-    /// * `max_distance` - The radius of the spiral
-    ///
-    /// # Example
-    /// ```
-    /// use spiral::EuclideanIterator;
-    ///
-    /// let spiral = EuclideanIterator::new(3, 3, 4);
-    /// for (x, y) in spiral {
-    ///     // Iterate over 2D array with 'x' & 'y'
-    /// }
-    /// ```
-    pub fn new(x: i32, y: i32, max_distance: u16) -> Self {
-        EuclideanIterator {
-            start_x: x,
-            start_y: y,
-
-            i: 0,
-            dir: 3,
-            lut: EuclideanIterator::build_lut_table(max_distance as i32)
-        }
-    }
-
-    fn build_lut_table(max_distance: i32) -> Vec<(i32, i32)> {
-        let mut lut = Vec::new();
-
-        lut.push((0, 0));
-
-        fn distance(vec: (i32, i32)) -> f32 {
-            ((vec.0 * vec.0 + vec.1 * vec.1) as f32).sqrt()
-        }
-
-        for y in 1..max_distance {
-            for x in 0..max_distance {
-                let vec = (x, y);
-                if distance(vec) < max_distance as f32 {
-                    lut.push(vec);
-                }
-            }
-        }
-
-        lut.sort_by(|&a, &b| distance(a).partial_cmp(&distance(b)).unwrap_or(Ordering::Equal));
-
-        lut
-    }
-}
-
-impl Iterator for EuclideanIterator {
-    type Item = (i32, i32);
-
-    fn next(&mut self) -> Option<(i32, i32)> {
-        let x = self.lut[self.i].0;
-        let y = self.lut[self.i].1;
-
-        let pos = match self.dir {
-            0 => (y, -x),
-            1 => (x, y),
-            2 => (-y, x),
-            3 => (-x, -y),
-
-            _ => unreachable!()
-        };
-
-        self.dir += 1;
-        if self.dir >= 4 {
-            self.dir = 0;
-
-            self.i += 1;
-            if self.i >= self.lut.len() {
-                return None;
-            }
-        }
-
-        Some((self.start_x + pos.0, self.start_y + pos.1))
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -386,28 +275,6 @@ mod tests {
 
         let mut current = 0;
         let spiral = ManhattanIterator::new(3, 3, 4);
-        for (x, y) in spiral {
-            current += 1;
-
-            let index = x as usize + (y as usize * SIZE);
-            output[index] = current;
-        }
-
-        for y in 0..SIZE {
-            for x in 0..SIZE {
-                let index = x as usize + (y as usize * SIZE);
-                let output_val = output[index];
-
-                print!("{:3} ", output_val);
-            }
-            println!("");
-        }
-
-        println!("Euclidean");
-        output = [0; SIZE * SIZE];
-
-        current = 0;
-        let spiral = EuclideanIterator::new(3, 3, 4);
         for (x, y) in spiral {
             current += 1;
 
@@ -454,18 +321,6 @@ mod tests {
             let max_distance = (size + 1) as i32;
             for (x, y) in ManhattanIterator::new(0, 0, size) {
                 let distance = x.abs() + y.abs();
-                assert!(distance <= max_distance, "spiral was out of bounds: distance {}, size: {}, x: {}, y: {}", distance, size, x, y);
-            }
-        }
-    }
-
-    #[test]
-    fn euclidean_bounds() {
-        for size in 1..100 {
-            let max_distance = (size + 1) as i32;
-            for (x, y) in EuclideanIterator::new(0, 0, size) {
-                let squared = (x * x + y * y) as f32;
-                let distance = squared.sqrt() as i32;
                 assert!(distance <= max_distance, "spiral was out of bounds: distance {}, size: {}, x: {}, y: {}", distance, size, x, y);
             }
         }
