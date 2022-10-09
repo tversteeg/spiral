@@ -1,10 +1,14 @@
-# spiral
+<h1 align="center">spiral</h1>
+<p align="center">
+   A Rust Library for iterating over 2D structures in spiral patterns.
+</p>
 
-A Rust Library for iterating over 2D structures in spiral patterns
-
-[![Build Status](https://travis-ci.org/tversteeg/spiral.svg?branch=master)](https://travis-ci.org/tversteeg/spiral) [![Cargo](https://img.shields.io/crates/v/spiral.svg)](https://crates.io/crates/spiral) [![License: GPL-3.0](https://img.shields.io/crates/l/spiral.svg)](#license) [![Downloads](https://img.shields.io/crates/d/spiral.svg)](#downloads)
-
-### [Documentation](https://docs.rs/spiral/)
+<p align="center">
+	<a href="https://github.com/tversteeg/spiral/actions"><img src="https://github.com/tversteeg/spiral/workflows/CI/badge.svg" alt="CI"/></a>
+	<a href="https://crates.io/crates/spiral"><img src="https://img.shields.io/crates/v/spiral.svg" alt="Version"/></a>
+	<a href="https://docs.rs/spiral"><img src="https://img.shields.io/badge/api-rustdoc-blue.svg" alt="Rust Documentation"/></a>
+	<img src="https://img.shields.io/crates/l/spiral.svg" alt="License"/>
+</p>
 
 ## Usage
 

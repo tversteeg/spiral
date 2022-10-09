@@ -4,6 +4,7 @@ version = "0.1.9"
 authors = ["Thomas Versteeg <thomasversteeg@gmx.com>"]
 license = "GPL-3.0"
 homepage = "https://github.com/tversteeg/spiral"
+edition = "2021"
 
 readme = "README.md"
 description = "Iterate over a 2D structure in a spiral pattern"
@@ -12,8 +13,3 @@ documentation = "https://docs.rs/spiral"
 repository = "https://github.com/tversteeg/spiral.git"
 keywords = ["iterator", "2D", "distance"]
 categories = ["algorithms", "game-engines"]
-
-[badges]
-travis-ci = {repository = "tversteeg/spiral"}
-
-[dependencies]
