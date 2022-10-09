@@ -4,7 +4,7 @@
 </p>
 
 <p align="center">
-	<a href="https://github.com/tversteeg/spiral/actions"><img src="https://github.com/tversteeg/spiral/workflows/CI/badge.svg" alt="CI"/></a>
+	<a href="https://github.com/tversteeg/spiral/actions"><img src="https://github.com/tversteeg/spiral/workflows/rust/badge.svg" alt="CI"/></a>
 	<a href="https://crates.io/crates/spiral"><img src="https://img.shields.io/crates/v/spiral.svg" alt="Version"/></a>
 	<a href="https://docs.rs/spiral"><img src="https://img.shields.io/badge/api-rustdoc-blue.svg" alt="Rust Documentation"/></a>
 	<img src="https://img.shields.io/crates/l/spiral.svg" alt="License"/>
