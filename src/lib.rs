@@ -35,15 +35,16 @@
 //! }
 //! ```
 
-use num_traits::{FromPrimitive, Num, One, PrimInt, WrappingAdd, WrappingSub, Zero};
+use num_traits::{FromPrimitive, PrimInt, WrappingAdd, WrappingSub};
 
 /// Simple trait so we don't have to wrap write all the num signatures that we want every time.
 pub trait Int: PrimInt + FromPrimitive + WrappingAdd + WrappingSub {}
 impl<I: PrimInt + FromPrimitive + WrappingAdd + WrappingSub> Int for I {}
 
-/// Which leg the chebyshev iterator is in.
+/// Which leg the iterator is in.
 #[derive(Debug, Copy, Clone)]
-enum ChebyshevLeg {
+enum Leg {
+    /// Center of the iterator, should only be triggered once.
     Center,
     Right,
     Top,
@@ -67,7 +68,7 @@ pub struct ChebyshevIterator<I: Int> {
     x: I,
     y: I,
     layer: I,
-    leg: ChebyshevLeg,
+    leg: Leg,
 }
 
 impl<I: Int> ChebyshevIterator<I> {
@@ -105,7 +106,7 @@ impl<I: Int> ChebyshevIterator<I> {
             x: I::zero(),
             y: I::zero(),
             layer: I::one(),
-            leg: ChebyshevLeg::Center,
+            leg: Leg::Center,
         }
     }
 }
@@ -115,41 +116,41 @@ impl<I: Int> Iterator for ChebyshevIterator<I> {
 
     fn next(&mut self) -> Option<(I, I)> {
         match self.leg {
-            ChebyshevLeg::Center => {
-                self.leg = ChebyshevLeg::Right;
+            Leg::Center => {
+                self.leg = Leg::Right;
             }
-            ChebyshevLeg::Right => {
+            Leg::Right => {
                 self.x = self.x.wrapping_add(&I::one());
 
                 if self.x == self.layer {
-                    self.leg = ChebyshevLeg::Top;
+                    self.leg = Leg::Top;
 
                     if self.layer == self.max_distance {
                         return None;
                     }
                 }
             }
-            ChebyshevLeg::Top => {
+            Leg::Top => {
                 self.y = self.y.wrapping_add(&I::one());
 
                 if self.y == self.layer {
-                    self.leg = ChebyshevLeg::Left;
+                    self.leg = Leg::Left;
                 }
             }
-            ChebyshevLeg::Left => {
+            Leg::Left => {
                 self.x = self.x.wrapping_sub(&I::one());
 
                 // -self.x == self.layer
                 if self.x.wrapping_add(&self.layer).is_zero() {
-                    self.leg = ChebyshevLeg::Bottom;
+                    self.leg = Leg::Bottom;
                 }
             }
-            ChebyshevLeg::Bottom => {
+            Leg::Bottom => {
                 self.y = self.y.wrapping_sub(&I::one());
 
                 // -self.y == self.layer
                 if self.y.wrapping_add(&self.layer).is_zero() {
-                    self.leg = ChebyshevLeg::Right;
+                    self.leg = Leg::Right;
 
                     self.layer = self.layer.add(I::one());
                 }
@@ -170,19 +171,19 @@ impl<I: Int> Iterator for ChebyshevIterator<I> {
 /// `distance = absolute x offset from center + absolute y offset from center`.
 ///
 /// This creates a diamond-shaped spiral.
-pub struct ManhattanIterator {
-    max_distance: i32,
-    start_x: i32,
-    start_y: i32,
+#[derive(Debug, Clone)]
+pub struct ManhattanIterator<I: Int> {
+    max_distance: I,
+    start_x: I,
+    start_y: I,
 
-    x: i32,
-    y: i32,
-    layer: i32,
-    leg: i32,
+    x: I,
+    y: I,
+    layer: I,
+    leg: Leg,
 }
 
-impl ManhattanIterator {
-    #[allow(dead_code)]
+impl<I: Int> ManhattanIterator<I> {
     /// Create a new iterator using the Manhattan distance function
     ///
     /// # Arguments
@@ -193,9 +194,9 @@ impl ManhattanIterator {
     ///
     /// # Example
     /// ```
-    /// use spiral::ChebyshevIterator;
+    /// use spiral::ManhattanIterator;
     ///
-    /// let spiral = ChebyshevIterator::new(3, 3, 4);
+    /// let spiral = ManhattanIterator::new(3, 3, 4);
     /// for (x, y) in spiral {
     ///     // Iterates over 7x7 2D array with 'x' & 'y' following this pattern:
     ///
@@ -208,70 +209,75 @@ impl ManhattanIterator {
     ///     //  0   0   0  17   0   0   0
     /// }
     /// ```
-    pub fn new(x: i32, y: i32, max_distance: u16) -> Self {
+    pub fn new(x: I, y: I, max_distance: I) -> Self {
         ManhattanIterator {
-            max_distance: max_distance as i32,
+            max_distance,
             start_x: x,
             start_y: y,
 
-            x: 2,
-            y: -1,
-            layer: 1,
-            leg: -1,
+            x: I::from_u8(2).expect("Could not instantiate number"),
+            // -1
+            y: I::zero().wrapping_sub(&I::one()),
+
+            layer: I::one(),
+            leg: Leg::Center,
         }
     }
 }
 
-impl Iterator for ManhattanIterator {
-    type Item = (i32, i32);
+impl<I: Int> Iterator for ManhattanIterator<I> {
+    type Item = (I, I);
 
-    fn next(&mut self) -> Option<(i32, i32)> {
+    fn next(&mut self) -> Option<(I, I)> {
         match self.leg {
-            // Use -1 as the center
-            -1 => {
-                self.leg = 0;
+            Leg::Center => {
+                self.leg = Leg::Right;
 
                 return Some((self.start_x, self.start_y));
             }
-            0 => {
-                if self.max_distance == 1 {
+            Leg::Right => {
+                if self.max_distance == I::one() {
                     return None;
                 }
 
-                self.x -= 1;
-                self.y += 1;
-                if self.x == 0 {
-                    self.leg = 1;
+                self.x = self.x.wrapping_sub(&I::one());
+                self.y = self.y.wrapping_add(&I::one());
+
+                if self.x.is_zero() {
+                    self.leg = Leg::Top;
                 }
             }
-            1 => {
-                self.x -= 1;
-                self.y -= 1;
-                if self.y == 0 {
-                    self.leg = 2;
+            Leg::Top => {
+                self.x = self.x.wrapping_sub(&I::one());
+                self.y = self.y.wrapping_sub(&I::one());
+
+                if self.y.is_zero() {
+                    self.leg = Leg::Left;
                 }
             }
-            2 => {
-                self.x += 1;
-                self.y -= 1;
-                if self.x == 0 {
-                    self.leg = 3;
+            Leg::Left => {
+                self.x = self.x.wrapping_add(&I::one());
+                self.y = self.y.wrapping_sub(&I::one());
+
+                if self.x.is_zero() {
+                    self.leg = Leg::Bottom;
                 }
             }
-            3 => {
-                self.x += 1;
-                self.y += 1;
-                if self.y == 0 {
-                    self.x += 1;
-                    self.leg = 0;
-                    self.layer += 1;
+            Leg::Bottom => {
+                self.x = self.x.wrapping_add(&I::one());
+                self.y = self.y.wrapping_add(&I::one());
+
+                if self.y.is_zero() {
+                    self.x = self.x.wrapping_add(&I::one());
+                    self.leg = Leg::Right;
+
+                    self.layer = self.layer.wrapping_add(&I::one());
 
                     if self.layer == self.max_distance {
                         return None;
                     }
                 }
             }
-            _ => unreachable!(),
         }
 
         Some((self.start_x + self.x, self.start_y + self.y))
@@ -334,8 +340,8 @@ mod tests {
     #[test]
     fn manhattan_bounds() {
         for size in 1..100 {
-            let max_distance = (size + 1) as i32;
-            for (x, y) in ManhattanIterator::new(0, 0, size) {
+            let max_distance = size + 1;
+            for (x, y) in ManhattanIterator::new(0i16, 0i16, size) {
                 let distance = x.abs() + y.abs();
                 assert!(
                     distance <= max_distance,
@@ -392,6 +398,11 @@ mod tests {
 
             assert_eq!(expected[index as usize], current);
         }
+    }
+
+    #[test]
+    fn manhattan_unsigned() {
+        ManhattanIterator::new(0u32, 0u32, 4u32).for_each(drop);
     }
 
     #[test]
