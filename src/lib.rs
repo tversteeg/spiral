@@ -12,12 +12,6 @@
 //! spiral = "0.1"
 //! ```
 //!
-//! and this to your crate root:
-//!
-//! ```rust
-//! extern crate spiral;
-//! ```
-//!
 //! # Examples
 //!
 //! ```rust
@@ -58,7 +52,7 @@ pub struct ChebyshevIterator {
     x: i32,
     y: i32,
     layer: i32,
-    leg: i32
+    leg: i32,
 }
 
 impl ChebyshevIterator {
@@ -79,13 +73,13 @@ impl ChebyshevIterator {
     /// for (x, y) in spiral {
     ///     // Iterates over 7x7 2D array with 'x' & 'y' following this pattern:
     ///
-    ///     // 43  44  45  46  47  48  49 
-    ///     // 42  21  22  23  24  25  26 
-    ///     // 41  20   7   8   9  10  27 
-    ///     // 40  19   6   1   2  11  28 
-    ///     // 39  18   5   4   3  12  29 
-    ///     // 38  17  16  15  14  13  30 
-    ///     // 37  36  35  34  33  32  31 
+    ///     // 43  44  45  46  47  48  49
+    ///     // 42  21  22  23  24  25  26
+    ///     // 41  20   7   8   9  10  27
+    ///     // 40  19   6   1   2  11  28
+    ///     // 39  18   5   4   3  12  29
+    ///     // 38  17  16  15  14  13  30
+    ///     // 37  36  35  34  33  32  31
     /// }
     /// ```
     pub fn new(x: i32, y: i32, max_distance: u16) -> Self {
@@ -97,7 +91,7 @@ impl ChebyshevIterator {
             x: 0,
             y: 0,
             layer: 1,
-            leg: -1
+            leg: -1,
         }
     }
 }
@@ -117,30 +111,30 @@ impl Iterator for ChebyshevIterator {
                     self.leg = 1;
 
                     if self.layer == self.max_distance {
-                        return None
+                        return None;
                     }
                 }
-            },
+            }
             1 => {
                 self.y += 1;
                 if self.y == self.layer {
                     self.leg = 2;
                 }
-            },
+            }
             2 => {
                 self.x -= 1;
                 if -self.x == self.layer {
                     self.leg = 3;
                 }
-            },
+            }
             3 => {
                 self.y -= 1;
                 if -self.y == self.layer {
                     self.leg = 0;
                     self.layer += 1;
                 }
-            },
-            _ => unreachable!()
+            }
+            _ => unreachable!(),
         }
 
         Some((self.start_x + self.x, self.start_y + self.y))
@@ -162,7 +156,7 @@ pub struct ManhattanIterator {
     x: i32,
     y: i32,
     layer: i32,
-    leg: i32
+    leg: i32,
 }
 
 impl ManhattanIterator {
@@ -183,13 +177,13 @@ impl ManhattanIterator {
     /// for (x, y) in spiral {
     ///     // Iterates over 7x7 2D array with 'x' & 'y' following this pattern:
     ///
-    ///     //  0   0   0  23   0   0   0 
-    ///     //  0   0  22  12  24   0   0 
-    ///     //  0  21  11   5  13  25   0 
-    ///     // 20  10   4   1   2   6  14 
-    ///     //  0  19   9   3   7  15   0 
-    ///     //  0   0  18   8  16   0   0 
-    ///     //  0   0   0  17   0   0   0 
+    ///     //  0   0   0  23   0   0   0
+    ///     //  0   0  22  12  24   0   0
+    ///     //  0  21  11   5  13  25   0
+    ///     // 20  10   4   1   2   6  14
+    ///     //  0  19   9   3   7  15   0
+    ///     //  0   0  18   8  16   0   0
+    ///     //  0   0   0  17   0   0   0
     /// }
     /// ```
     pub fn new(x: i32, y: i32, max_distance: u16) -> Self {
@@ -201,7 +195,7 @@ impl ManhattanIterator {
             x: 2,
             y: -1,
             layer: 1,
-            leg: -1
+            leg: -1,
         }
     }
 }
@@ -214,7 +208,7 @@ impl Iterator for ManhattanIterator {
             // Use -1 as the center
             -1 => {
                 self.leg = 0;
-                
+
                 return Some((self.start_x, self.start_y));
             }
             0 => {
@@ -227,21 +221,21 @@ impl Iterator for ManhattanIterator {
                 if self.x == 0 {
                     self.leg = 1;
                 }
-            },
+            }
             1 => {
                 self.x -= 1;
                 self.y -= 1;
                 if self.y == 0 {
                     self.leg = 2;
                 }
-            },
+            }
             2 => {
                 self.x += 1;
                 self.y -= 1;
                 if self.x == 0 {
                     self.leg = 3;
                 }
-            },
+            }
             3 => {
                 self.x += 1;
                 self.y += 1;
@@ -251,11 +245,11 @@ impl Iterator for ManhattanIterator {
                     self.layer += 1;
 
                     if self.layer == self.max_distance {
-                        return None
+                        return None;
                     }
                 }
-            },
-            _ => unreachable!()
+            }
+            _ => unreachable!(),
         }
 
         Some((self.start_x + self.x, self.start_y + self.y))
@@ -289,7 +283,7 @@ mod tests {
 
                 print!("{:3} ", output_val);
             }
-            println!("");
+            println!();
         }
 
         println!("Chebyshev");
@@ -311,7 +305,7 @@ mod tests {
 
                 print!("{:3} ", output_val);
             }
-            println!("");
+            println!();
         }
     }
 
@@ -321,7 +315,14 @@ mod tests {
             let max_distance = (size + 1) as i32;
             for (x, y) in ManhattanIterator::new(0, 0, size) {
                 let distance = x.abs() + y.abs();
-                assert!(distance <= max_distance, "spiral was out of bounds: distance {}, size: {}, x: {}, y: {}", distance, size, x, y);
+                assert!(
+                    distance <= max_distance,
+                    "spiral was out of bounds: distance {}, size: {}, x: {}, y: {}",
+                    distance,
+                    size,
+                    x,
+                    y
+                );
             }
         }
     }
@@ -332,17 +333,21 @@ mod tests {
             let max_distance = (size + 1) as i32;
             for (x, y) in ChebyshevIterator::new(0, 0, size) {
                 let distance = std::cmp::max(x.abs(), y.abs());
-                assert!(distance <= max_distance, "spiral was out of bounds: distance {}, size: {}, x: {}, y: {}", distance, size, x, y);
+                assert!(
+                    distance <= max_distance,
+                    "spiral was out of bounds: distance {}, size: {}, x: {}, y: {}",
+                    distance,
+                    size,
+                    x,
+                    y
+                );
             }
         }
     }
 
     #[test]
     fn manhattan() {
-        let expected: [i32; 3 * 3] = [
-            0, 5, 0,
-            4, 1, 2,
-            0, 3, 0];
+        let expected: [i32; 3 * 3] = [0, 5, 0, 4, 1, 2, 0, 3, 0];
 
         let mut current = 0;
         for (x, y) in ManhattanIterator::new(1, 1, 2) {
@@ -354,11 +359,8 @@ mod tests {
         }
 
         let expected: [i32; 5 * 5] = [
-             0,  0, 12,  0,  0,
-             0, 11,  5, 13,  0,
-            10,  4,  1,  2,  6,
-             0,  9,  3,  7,  0,
-             0,  0,  8,  0,  0];
+            0, 0, 12, 0, 0, 0, 11, 5, 13, 0, 10, 4, 1, 2, 6, 0, 9, 3, 7, 0, 0, 0, 8, 0, 0,
+        ];
 
         current = 0;
         for (x, y) in ManhattanIterator::new(2, 2, 3) {
@@ -373,11 +375,9 @@ mod tests {
     #[test]
     fn chebyshev() {
         let expected: [i32; 5 * 5] = [
-            21, 22, 23, 24, 25,
-            20,  7,  8,  9, 10,
-            19,  6,  1,  2, 11,
-            18,  5,  4,  3, 12,
-            17, 16, 15, 14, 13];
+            21, 22, 23, 24, 25, 20, 7, 8, 9, 10, 19, 6, 1, 2, 11, 18, 5, 4, 3, 12, 17, 16, 15, 14,
+            13,
+        ];
 
         let mut current = 0;
         for (x, y) in ChebyshevIterator::new(2, 2, 3) {
@@ -388,5 +388,4 @@ mod tests {
             assert_eq!(expected[index as usize], current);
         }
     }
-
 }
