@@ -1,10 +1,5 @@
-#![feature(test)]
-
-extern crate spiral;
-extern crate test;
-
-use test::Bencher;
-
+use criterion::{criterion_group, criterion_main, Criterion};
+use pprof::criterion::{Output, PProfProfiler};
 use spiral::*;
 
 const SMALL: u16 = 2;
@@ -12,46 +7,46 @@ const MEDIUM: u16 = 10;
 const LARGE: u16 = 100;
 const HUGE: u16 = 1000;
 
-// Small
-#[bench]
-fn chebyshev_small(b: &mut Bencher) {
-    b.iter(|| for _ in ChebyshevIterator::new(0, 0, SMALL) {});
+pub fn chebyshev(c: &mut Criterion) {
+    c.bench_function("chebyshev, small", |b| {
+        b.iter(|| for _ in ChebyshevIterator::new(0, 0, SMALL) {});
+    });
+
+    c.bench_function("chebyshev, medium", |b| {
+        b.iter(|| for _ in ChebyshevIterator::new(0, 0, MEDIUM) {});
+    });
+
+    c.bench_function("chebyshev, large", |b| {
+        b.iter(|| for _ in ChebyshevIterator::new(0, 0, LARGE) {});
+    });
+
+    c.bench_function("chebyshev, huge", |b| {
+        b.iter(|| for _ in ChebyshevIterator::new(0, 0, HUGE) {});
+    });
 }
 
-#[bench]
-fn manhattan_small(b: &mut Bencher) {
-    b.iter(|| for _ in ManhattanIterator::new(0, 0, SMALL) {});
+pub fn manhattan(c: &mut Criterion) {
+    c.bench_function("manhattan, small", |b| {
+        b.iter(|| for _ in ManhattanIterator::new(0, 0, SMALL) {});
+    });
+
+    c.bench_function("manhattan, medium", |b| {
+        b.iter(|| for _ in ManhattanIterator::new(0, 0, MEDIUM) {});
+    });
+
+    c.bench_function("manhattan, large", |b| {
+        b.iter(|| for _ in ManhattanIterator::new(0, 0, LARGE) {});
+    });
+
+    c.bench_function("manhattan, huge", |b| {
+        b.iter(|| for _ in ManhattanIterator::new(0, 0, HUGE) {});
+    });
 }
 
-// Medium
-#[bench]
-fn chebyshev_medium(b: &mut Bencher) {
-    b.iter(|| for _ in ChebyshevIterator::new(0, 0, MEDIUM) {});
+criterion_group! {
+    name = benches;
+    config = Criterion::default().with_profiler(PProfProfiler::new(100, Output::Flamegraph(None)));
+    targets = manhattan, chebyshev
 }
 
-#[bench]
-fn manhattan_medium(b: &mut Bencher) {
-    b.iter(|| for _ in ManhattanIterator::new(0, 0, MEDIUM) {});
-}
-
-// Large
-#[bench]
-fn chebyshev_large(b: &mut Bencher) {
-    b.iter(|| for _ in ChebyshevIterator::new(0, 0, LARGE) {});
-}
-
-#[bench]
-fn manhattan_large(b: &mut Bencher) {
-    b.iter(|| for _ in ManhattanIterator::new(0, 0, LARGE) {});
-}
-
-// Huge
-#[bench]
-fn chebyshev_huge(b: &mut Bencher) {
-    b.iter(|| for _ in ChebyshevIterator::new(0, 0, HUGE) {});
-}
-
-#[bench]
-fn manhattan_huge(b: &mut Bencher) {
-    b.iter(|| for _ in ManhattanIterator::new(0, 0, HUGE) {});
-}
+criterion_main!(benches);

@@ -13,3 +13,11 @@ documentation = "https://docs.rs/spiral"
 repository = "https://github.com/tversteeg/spiral.git"
 keywords = ["iterator", "2D", "distance"]
 categories = ["algorithms", "game-engines"]
+
+[dev-dependencies]
+pprof = { version = "0.10.1", features = ["flamegraph", "criterion"] }
+criterion = { version = "0.3.6", default-features = false }
+
+[[bench]]
+name = "benchmarks"
+harness = false
