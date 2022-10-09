@@ -1,5 +1,3 @@
-#![crate_name = "spiral"]
-
 //! Iterators to iterate 2D structures in spiral patterns
 //!
 //! # Usage
@@ -37,6 +35,22 @@
 //! }
 //! ```
 
+use num_traits::{FromPrimitive, Num, One, PrimInt, WrappingAdd, WrappingSub, Zero};
+
+/// Simple trait so we don't have to wrap write all the num signatures that we want every time.
+pub trait Int: PrimInt + FromPrimitive + WrappingAdd + WrappingSub {}
+impl<I: PrimInt + FromPrimitive + WrappingAdd + WrappingSub> Int for I {}
+
+/// Which leg the chebyshev iterator is in.
+#[derive(Debug, Copy, Clone)]
+enum ChebyshevLeg {
+    Center,
+    Right,
+    Top,
+    Left,
+    Bottom,
+}
+
 /// An iterator iterating in a spiral fashion with the Chebyshev distance function.
 ///
 /// The distance function is defined as:
@@ -44,19 +58,19 @@
 /// `distance = max(absolute x offset from center, absolute y offset from center)`.
 ///
 /// This creates a rectangular-shaped spiral.
-pub struct ChebyshevIterator {
-    max_distance: i32,
-    start_x: i32,
-    start_y: i32,
+#[derive(Debug, Clone)]
+pub struct ChebyshevIterator<I: Int> {
+    max_distance: I,
+    start_x: I,
+    start_y: I,
 
-    x: i32,
-    y: i32,
-    layer: i32,
-    leg: i32,
+    x: I,
+    y: I,
+    layer: I,
+    leg: ChebyshevLeg,
 }
 
-impl ChebyshevIterator {
-    #[allow(dead_code)]
+impl<I: Int> ChebyshevIterator<I> {
     /// Create a new iterator using the Chebyshev distance function
     ///
     /// # Arguments
@@ -82,62 +96,70 @@ impl ChebyshevIterator {
     ///     // 37  36  35  34  33  32  31
     /// }
     /// ```
-    pub fn new(x: i32, y: i32, max_distance: u16) -> Self {
+    pub fn new(x: I, y: I, max_distance: I) -> Self {
         ChebyshevIterator {
-            max_distance: max_distance as i32,
+            max_distance,
             start_x: x,
             start_y: y,
 
-            x: 0,
-            y: 0,
-            layer: 1,
-            leg: -1,
+            x: I::zero(),
+            y: I::zero(),
+            layer: I::one(),
+            leg: ChebyshevLeg::Center,
         }
     }
 }
 
-impl Iterator for ChebyshevIterator {
-    type Item = (i32, i32);
+impl<I: Int> Iterator for ChebyshevIterator<I> {
+    type Item = (I, I);
 
-    fn next(&mut self) -> Option<(i32, i32)> {
+    fn next(&mut self) -> Option<(I, I)> {
         match self.leg {
-            // Use -1 as the center
-            -1 => {
-                self.leg = 0;
+            ChebyshevLeg::Center => {
+                self.leg = ChebyshevLeg::Right;
             }
-            0 => {
-                self.x += 1;
+            ChebyshevLeg::Right => {
+                self.x = self.x.wrapping_add(&I::one());
+
                 if self.x == self.layer {
-                    self.leg = 1;
+                    self.leg = ChebyshevLeg::Top;
 
                     if self.layer == self.max_distance {
                         return None;
                     }
                 }
             }
-            1 => {
-                self.y += 1;
+            ChebyshevLeg::Top => {
+                self.y = self.y.wrapping_add(&I::one());
+
                 if self.y == self.layer {
-                    self.leg = 2;
+                    self.leg = ChebyshevLeg::Left;
                 }
             }
-            2 => {
-                self.x -= 1;
-                if -self.x == self.layer {
-                    self.leg = 3;
+            ChebyshevLeg::Left => {
+                self.x = self.x.wrapping_sub(&I::one());
+
+                // -self.x == self.layer
+                if self.x.wrapping_add(&self.layer).is_zero() {
+                    self.leg = ChebyshevLeg::Bottom;
                 }
             }
-            3 => {
-                self.y -= 1;
-                if -self.y == self.layer {
-                    self.leg = 0;
-                    self.layer += 1;
+            ChebyshevLeg::Bottom => {
+                self.y = self.y.wrapping_sub(&I::one());
+
+                // -self.y == self.layer
+                if self.y.wrapping_add(&self.layer).is_zero() {
+                    self.leg = ChebyshevLeg::Right;
+
+                    self.layer = self.layer.add(I::one());
                 }
             }
-            _ => unreachable!(),
         }
 
-        Some((self.start_x + self.x, self.start_y + self.y))
+        Some((
+            self.start_x.wrapping_add(&self.x),
+            self.start_y.wrapping_add(&self.y),
+        ))
     }
 }
 
@@ -331,7 +353,7 @@ mod tests {
     fn chebyshev_bounds() {
         for size in 1..100 {
             let max_distance = (size + 1) as i32;
-            for (x, y) in ChebyshevIterator::new(0, 0, size) {
+            for (x, y) in ChebyshevIterator::new(0i32, 0i32, size) {
                 let distance = std::cmp::max(x.abs(), y.abs());
                 assert!(
                     distance <= max_distance,
@@ -380,7 +402,24 @@ mod tests {
         ];
 
         let mut current = 0;
-        for (x, y) in ChebyshevIterator::new(2, 2, 3) {
+        for (x, y) in ChebyshevIterator::new(2i32, 2i32, 3i32) {
+            current += 1;
+
+            let index = x + y * 5;
+
+            assert_eq!(expected[index as usize], current);
+        }
+    }
+
+    #[test]
+    fn chebyshev_unsigned() {
+        let expected: [u32; 5 * 5] = [
+            21, 22, 23, 24, 25, 20, 7, 8, 9, 10, 19, 6, 1, 2, 11, 18, 5, 4, 3, 12, 17, 16, 15, 14,
+            13,
+        ];
+
+        let mut current = 0;
+        for (x, y) in ChebyshevIterator::new(2u32, 2u32, 3u32) {
             current += 1;
 
             let index = x + y * 5;

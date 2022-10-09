@@ -21,3 +21,6 @@ criterion = { version = "0.3.6", default-features = false }
 [[bench]]
 name = "benchmarks"
 harness = false
+
+[dependencies]
+num-traits = "0.2.15"
