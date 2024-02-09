@@ -7,7 +7,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! spiral = "0.1"
+//! spiral = "0.2"
 //! ```
 //!
 //! # Examples
