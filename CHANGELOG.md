@@ -6,6 +6,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2](https://github.com/tversteeg/spiral/compare/v0.2.1...v0.2.2) - 2025-11-30
+
+### Fixed
+
+- *(deps)* update rust crate num-traits to 0.2.19
+
+### Other
+
+- *(deps)* update rust crate criterion to 0.8.0
+- *(deps)* update swatinem/rust-cache action to v2.8.2
+- *(deps)* update actions/checkout action to v6
+- *(deps)* update stefanzweifel/git-auto-commit-action action to v7
+- *(deps)* update swatinem/rust-cache action to v2.8.1
+- *(deps)* update actions/checkout action to v5
+- *(deps)* update rust crate criterion to 0.7.0
+- *(deps)* update swatinem/rust-cache action to v2.8.0
+- *(deps)* update stefanzweifel/git-auto-commit-action action to v6
+- *(deps)* update rust crate pprof to 0.15.0
+- *(deps)* update rust crate criterion to 0.6.0
+- *(deps)* update swatinem/rust-cache action to v2.7.8
+- *(deps)* update swatinem/rust-cache action to v2.7.7
+- *(deps)* update swatinem/rust-cache action to v2.7.6
+- *(deps)* update rust crate pprof to 0.14.0
+- *(deps)* update swatinem/rust-cache action to v2.7.5
+
 ## [0.2.1](https://github.com/tversteeg/spiral/compare/v0.2.0...v0.2.1) - 2024-02-09
 
 ### Fixed
