@@ -40,7 +40,7 @@ jobs:
           toolchain: stable
 
       # Cache the built dependencies
-      - uses: Swatinem/rust-cache@v2.9.0
+      - uses: Swatinem/rust-cache@v2.9.1
         with:
           save-if: ${{ github.event_name == 'push' }}
 
